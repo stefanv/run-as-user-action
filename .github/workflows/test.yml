@@ -1,0 +1,24 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      TEST_USER: test-user
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create user
+        run:
+          sudo useradd -m $TEST_USER
+
+      - name: Test executing commands as user
+        uses: ./
+        with:
+          run: |
+            whoami
+            ls -al
+          user: $TEST_USER
+          shell: bash

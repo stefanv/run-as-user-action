@@ -1,0 +1,26 @@
+name: 'Run as user'
+description: 'Runs a set of commands as another user, in their shell environment'
+inputs:
+  commands:
+    description: 'Commands to run'
+    required: true
+  user:
+    description: 'User in whose shell environment these commands are executed'
+    required: true
+  shell:
+    description: 'Which shell to use; bash by default'
+    default: 'bash'
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        ssh-keygen -b 2048 -t rsa -f sshkey -q -N "" ; \
+        HOME_DIR=$(eval echo "~${{ inputs.user }}") ; \
+        SSH_DIR=$HOME_DIR/.ssh ; \
+        sudo mkdir -p $SSH_DIR ; \
+        sudo cp sshkey.pub $SSH_DIR/authorized_keys ; \
+        GROUP=$(id -gn ${{ inputs.user }}) ;\
+        sudo chown -R ${{ inputs.user }}:${GROUP} $SSH_DIR
+    - run: |
+        ssh -o StrictHostKeyChecking=no -i sshkey $TEST_USER@localhost ${{ inputs.shell }} -c \"${{ inputs.commands }}\" >> $GITHUB_OUTPUT
