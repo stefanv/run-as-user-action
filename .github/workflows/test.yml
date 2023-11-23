@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Create user
-        run:
+        run: |
           sudo useradd -m $TEST_USER
           echo "ENVVAR='xyz'" > ~$TEST_USER/.bashrc
 
