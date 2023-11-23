@@ -13,6 +13,7 @@ jobs:
       - name: Create user
         run:
           sudo useradd -m $TEST_USER
+          echo "ENVVAR='xyz'" > ~$TEST_USER/.bashrc
 
       - name: Test executing commands as user
         uses: ./
@@ -20,5 +21,6 @@ jobs:
           commands: |
             whoami
             ls -al
+            [[ $ENVVAR == "xyz" ]]
           user: $TEST_USER
           shell: bash
