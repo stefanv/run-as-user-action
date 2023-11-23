@@ -23,5 +23,7 @@ runs:
         sudo cp sshkey.pub $SSH_DIR/authorized_keys ; \
         GROUP=$(id -gn ${{ inputs.user }}) ;\
         sudo chown -R ${{ inputs.user }}:${GROUP} $SSH_DIR
+      shell: bash
     - run: |
         ssh -o StrictHostKeyChecking=no -i sshkey $TEST_USER@localhost ${{ inputs.shell }} -c \"${{ inputs.commands }}\" >> $GITHUB_OUTPUT
+      shell: bash
