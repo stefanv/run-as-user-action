@@ -14,6 +14,7 @@ jobs:
         run: |
           sudo useradd -m $TEST_USER
           HOMEDIR=$( getent passwd "$TEST_USER" | cut -d: -f6 )
+          echo $HOMEDIR
           echo "export ENVVAR='xyz'" | sudo tee $HOMEDIR/.bashrc
 
       - name: Test executing commands as user
@@ -23,6 +24,7 @@ jobs:
             whoami
             ls -al
             cat ~/.bashrc
+            echo $HOME
             [[ "$ENVVAR" == "xyz" ]]
           user: $TEST_USER
           shell: bash
