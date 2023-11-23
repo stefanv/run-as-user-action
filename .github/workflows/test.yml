@@ -28,3 +28,11 @@ jobs:
             [[ "$ENVVAR" == "xyz" ]]
           user: $TEST_USER
           shell: bash
+
+      - name: Test second execution
+        uses: ./
+        with:
+          commands: |
+            whoami
+          user: $TEST_USER
+          shell: bash
