@@ -22,6 +22,7 @@ jobs:
           commands: |
             whoami
             ls -al
+            cat ~/.bashrc
             [[ "$ENVVAR" == "xyz" ]]
           user: $TEST_USER
           shell: bash
