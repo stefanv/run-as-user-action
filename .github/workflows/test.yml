@@ -13,7 +13,7 @@ jobs:
       - name: Create user
         run: |
           sudo useradd -m $TEST_USER
-          echo "ENVVAR='xyz'" > ~$TEST_USER/.bashrc
+          echo "ENVVAR='xyz'" | sudo tee /home/$TEST_USER/.bashrc
 
       - name: Test executing commands as user
         uses: ./
