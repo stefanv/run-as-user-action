@@ -9,6 +9,7 @@ inputs:
     required: true
   shell:
     description: 'Which shell to use; bash by default'
+    required: true
     default: 'bash'
 
 runs:
