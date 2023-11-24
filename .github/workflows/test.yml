@@ -38,7 +38,7 @@ jobs:
         uses: ./
         with:
           commands: |
-            whoami
+            [[ $( whoami ) == "test-user" ]]
           user: $TEST_USER
           shell: bash
 
@@ -46,7 +46,7 @@ jobs:
         uses: ./
         with:
           commands: |
-            whoami
+            [[ $( whoami ) == "another-user" ]]
           user: $TEST_USER2
           shell: bash
 
@@ -54,7 +54,7 @@ jobs:
         uses: ./
         with:
           commands: |
-            whoami
+            [[ $( whoami ) == "test-user" ]]
           user: $TEST_USER
           shell: bash
           keyname: another_key
@@ -63,6 +63,6 @@ jobs:
         uses: ./
         with:
           commands: |
-            whoami
+            [[ $( whoami ) == "test-user" ]]
           user: $TEST_USER
           shell: bash
