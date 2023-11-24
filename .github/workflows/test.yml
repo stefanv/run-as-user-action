@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TEST_USER: test-user
-      TEST_USER2: another_user
+      TEST_USER2: another-user
     steps:
       - uses: actions/checkout@v4
 
