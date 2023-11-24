@@ -35,5 +35,5 @@ runs:
         fi
       shell: bash
     - run: |
-        ssh -o StrictHostKeyChecking=no -i ${{ inputs.keyname }} $TEST_USER@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
+        ssh -o StrictHostKeyChecking=no -i ${{ inputs.keyname }} ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
       shell: bash
