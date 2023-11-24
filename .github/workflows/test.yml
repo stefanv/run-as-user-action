@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TEST_USER: test-user
+      TEST_USER2: another_user
     steps:
       - uses: actions/checkout@v4
 
@@ -16,6 +17,7 @@ jobs:
           HOMEDIR=$( getent passwd "$TEST_USER" | cut -d: -f6 )
           echo $HOMEDIR
           echo "export ENVVAR='xyz'" | sudo tee $HOMEDIR/.bashrc
+          sudo useradd -m $TEST_USER2
 
       - name: Test executing commands as user
         uses: ./
@@ -30,6 +32,31 @@ jobs:
           shell: bash
 
       - name: Test second execution
+        uses: ./
+        with:
+          commands: |
+            whoami
+          user: $TEST_USER
+          shell: bash
+
+      - name: Test third execution, different user
+        uses: ./
+        with:
+          commands: |
+            whoami
+          user: $TEST_USER2
+          shell: bash
+
+      - name: Original user, different key
+        uses: ./
+        with:
+          commands: |
+            whoami
+          user: $TEST_USER
+          shell: bash
+          keyname: another_key
+
+      - name: Original user, original key
         uses: ./
         with:
           commands: |
