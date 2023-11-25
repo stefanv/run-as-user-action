@@ -20,20 +20,17 @@ runs:
   using: "composite"
   steps:
     - run: |
-        stamp_file=".${{ inputs.user }}-${{ inputs.keyname }}" ; \
-        if [ ! -e ${{ inputs.keyname }} ]; then
-          ssh-keygen -b 2048 -t rsa -f ${{ inputs.keyname }} -q -N "" ; \
-        fi; \
-        if [ ! -e $stamp_file ]; then
-          HOME_DIR=$(eval echo "~${{ inputs.user }}") ; \
-          SSH_DIR=$HOME_DIR/.ssh ; \
+        HOME_DIR=$(eval echo "~${{ inputs.user }}") ; \
+        SSH_DIR="$HOME_DIR/.ssh" ; \
+        KEYFILE="$SSH_DIR/${{ inputs.keyname }}" ; \
+        if [ ! -e $KEYFILE ]; then
           sudo mkdir -p $SSH_DIR ; \
-          sudo cat ${{ inputs.keyname }}.pub >> $SSH_DIR/authorized_keys ; \
+          ssh-keygen -b 1024 -t rsa -f $KEYFILE -q -N "" ; \
+          sudo cat $KEYFILE.pub >> $SSH_DIR/authorized_keys ; \
           GROUP=$(id -gn ${{ inputs.user }}) ;\
           sudo chown -R ${{ inputs.user }}:${GROUP} $SSH_DIR
-          touch $stamp_file
         fi
       shell: bash
     - run: |
-        ssh -o StrictHostKeyChecking=no -i ${{ inputs.keyname }} ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
+        sudo -u ${{ inputs.user }} ssh -o StrictHostKeyChecking=no -i ${{ inputs.keyname }} ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
       shell: bash
