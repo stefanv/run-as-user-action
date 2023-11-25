@@ -31,6 +31,7 @@ runs:
           sudo cat $KEYFILE.pub >> $SSH_DIR/authorized_keys ; \
           GROUP=$(id -gn ${{ inputs.user }}) ;\
           sudo chown -R ${{ inputs.user }}:${GROUP} $SSH_DIR
+          sudo chmod 700 $KEYFILE
         fi
       shell: bash
     - run: |
