@@ -12,28 +12,28 @@ inputs:
     required: true
     default: 'bash'
   keyname:
-    description: 'Filename root for SSH key pair'
+    description: 'Filename for SSH key pair'
     required: false
     default: 'rua_sshkey'
 
 runs:
   using: "composite"
   steps:
-    - id: install-key
-      run: |
-        HOME_DIR=$(eval echo "~${{ inputs.user }}") ; \
-        SSH_DIR="$HOME_DIR/.ssh" ; \
-        KEYFILE="$SSH_DIR/${{ inputs.keyname }}" ; \
-        echo "key=$KEYFILE" >> $GITHUB_OUTPUT
-        if [ ! -e $KEYFILE ]; then
-          sudo mkdir -p $SSH_DIR ; \
-          ssh-keygen -b 1024 -t rsa -f $KEYFILE -q -N "" ; \
-          sudo cat $KEYFILE.pub >> $SSH_DIR/authorized_keys ; \
-          GROUP=$(id -gn ${{ inputs.user }}) ;\
-          sudo chown -R ${{ inputs.user }}:${GROUP} $SSH_DIR
-          sudo chmod 700 $KEYFILE
+    - run: |
+        if [[ ! -e ${{ inputs.keyname }} ]]; then
+          ssh-keygen -b 1024 -t rsa -f "${{ inputs.keyname }}" -q -N ""
         fi
+
+        HOME_DIR=$(eval echo "~${{ inputs.user }}") ; \
+        GROUP=$(id -gn ${{ inputs.user }}) ;\
+        SSH_DIR="$HOME_DIR/.ssh" ; \
+        sudo mkdir -p $SSH_DIR ; \
+        sudo chmod 700 $SSH_DIR ; \
+        sudo chown -R ${{ inputs.user }}:${GROUP} $SSH_DIR ; \
+        # Could add check here to prevent duplication, but not necessary ; \
+        cat "${{ inputs.keyname }}.pub" | sudo tee -a $SSH_DIR/authorized_keys > /dev/null ; \
+        sudo chmod 644 $SSH_DIR/authorized_keys
       shell: bash
     - run: |
-        sudo -u ${{ inputs.user }} ssh -o StrictHostKeyChecking=no -i ${{ steps.install-key.outputs.key }} ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
+        ssh -o StrictHostKeyChecking=no -i "${{ inputs.keyname }}" ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
       shell: bash
