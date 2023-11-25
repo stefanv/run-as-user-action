@@ -19,10 +19,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: |
+    - id: install-key
+      run: |
         HOME_DIR=$(eval echo "~${{ inputs.user }}") ; \
         SSH_DIR="$HOME_DIR/.ssh" ; \
         KEYFILE="$SSH_DIR/${{ inputs.keyname }}" ; \
+        echo "key=$KEYFILE" >> $GITHUB_OUTPUT
         if [ ! -e $KEYFILE ]; then
           sudo mkdir -p $SSH_DIR ; \
           ssh-keygen -b 1024 -t rsa -f $KEYFILE -q -N "" ; \
@@ -32,5 +34,5 @@ runs:
         fi
       shell: bash
     - run: |
-        sudo -u ${{ inputs.user }} ssh -o StrictHostKeyChecking=no -i ${{ inputs.keyname }} ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
+        sudo -u ${{ inputs.user }} ssh -o StrictHostKeyChecking=no -i ${{ steps.install-key.outputs.key }} ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
       shell: bash
