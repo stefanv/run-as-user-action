@@ -20,16 +20,20 @@ runs:
   using: "composite"
   steps:
     - run: |
+        stamp_file=".${{ inputs.user }}-${{ inputs.keyname }}" ; \
         if [ ! -e ${{ inputs.keyname }} ]; then
           ssh-keygen -b 2048 -t rsa -f ${{ inputs.keyname }} -q -N "" ; \
+        fi; \
+        if [ ! -e $stamp_file ]; then
           HOME_DIR=$(eval echo "~${{ inputs.user }}") ; \
           SSH_DIR=$HOME_DIR/.ssh ; \
           sudo mkdir -p $SSH_DIR ; \
-          sudo cp ${{ inputs.keyname }}.pub $SSH_DIR/authorized_keys ; \
+          sudo cat ${{ inputs.keyname }}.pub >> $SSH_DIR/authorized_keys ; \
           GROUP=$(id -gn ${{ inputs.user }}) ;\
           sudo chown -R ${{ inputs.user }}:${GROUP} $SSH_DIR
+          touch $stamp_file
         fi
       shell: bash
     - run: |
-        ssh -o StrictHostKeyChecking=no -i ${{ inputs.keyname }} $TEST_USER@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
+        ssh -o StrictHostKeyChecking=no -i ${{ inputs.keyname }} ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
       shell: bash
