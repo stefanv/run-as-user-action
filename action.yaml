@@ -12,7 +12,7 @@ inputs:
     required: true
     default: 'bash'
   keyname:
-    description: 'Filename root for SSH key pair'
+    description: 'Filename for SSH key pair'
     required: false
     default: 'rua_sshkey'
 
@@ -20,16 +20,10 @@ runs:
   using: "composite"
   steps:
     - run: |
-        if [ ! -e ${{ inputs.keyname }} ]; then
-          ssh-keygen -b 2048 -t rsa -f ${{ inputs.keyname }} -q -N "" ; \
-          HOME_DIR=$(eval echo "~${{ inputs.user }}") ; \
-          SSH_DIR=$HOME_DIR/.ssh ; \
-          sudo mkdir -p $SSH_DIR ; \
-          sudo cp ${{ inputs.keyname }}.pub $SSH_DIR/authorized_keys ; \
-          GROUP=$(id -gn ${{ inputs.user }}) ;\
-          sudo chown -R ${{ inputs.user }}:${GROUP} $SSH_DIR
-        fi
+        sudo python generate-key.py "${{ inputs.keyname }}" ${{ inputs.user }}
+        # Give runner access to generated SSH key
+        sudo chown $USER:$USER "${{ inputs.keyname }}"
       shell: bash
     - run: |
-        ssh -o StrictHostKeyChecking=no -i ${{ inputs.keyname }} $TEST_USER@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
+        ssh -o StrictHostKeyChecking=no -i "${{ inputs.keyname }}" ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
       shell: bash
