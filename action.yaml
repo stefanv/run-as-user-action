@@ -20,19 +20,9 @@ runs:
   using: "composite"
   steps:
     - run: |
-        if [[ ! -e ${{ inputs.keyname }} ]]; then
-          ssh-keygen -b 1024 -t rsa -f "${{ inputs.keyname }}" -q -N ""
-        fi
-
-        HOME_DIR=$(eval echo "~${{ inputs.user }}") ; \
-        GROUP=$(id -gn ${{ inputs.user }}) ;\
-        SSH_DIR="$HOME_DIR/.ssh" ; \
-        sudo mkdir -p $SSH_DIR ; \
-        sudo chmod 700 $SSH_DIR ; \
-        sudo chown -R ${{ inputs.user }}:${GROUP} $SSH_DIR ; \
-        # Could add check here to prevent duplication, but not necessary ; \
-        cat "${{ inputs.keyname }}.pub" | sudo tee -a $SSH_DIR/authorized_keys > /dev/null ; \
-        sudo chmod 644 $SSH_DIR/authorized_keys
+        sudo python generate-key.py "${{ inputs.keyname }}" ${{ inputs.user }}
+        # Give runner access to generated SSH key
+        sudo chown $USER:$USER "${{ inputs.keyname }}"
       shell: bash
     - run: |
         ssh -o StrictHostKeyChecking=no -i "${{ inputs.keyname }}" ${{ inputs.user }}@localhost ${{ inputs.shell }} -c \"'${{ inputs.commands }}'\"
